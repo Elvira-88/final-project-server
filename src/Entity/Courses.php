@@ -30,11 +30,6 @@ class Courses
     private $description;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $teacher;
-
-    /**
      * @ORM\Column(type="smallint")
      */
     private $duration;
@@ -48,6 +43,12 @@ class Courses
      * @ORM\OneToMany(targetEntity=Enrollment::class, mappedBy="course")
      */
     private $enrollments;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Teachers::class, inversedBy="courses")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $teacher;
 
     public function __construct()
     {
@@ -79,18 +80,6 @@ class Courses
     public function setDescription(string $description): self
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getTeacher(): ?string
-    {
-        return $this->teacher;
-    }
-
-    public function setTeacher(string $teacher): self
-    {
-        $this->teacher = $teacher;
 
         return $this;
     }
@@ -145,6 +134,18 @@ class Courses
                 $enrollment->setCourse(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTeacher(): ?Teachers
+    {
+        return $this->teacher;
+    }
+
+    public function setTeacher(?Teachers $teacher): self
+    {
+        $this->teacher = $teacher;
 
         return $this;
     }

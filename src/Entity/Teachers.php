@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TeachersRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -36,6 +38,16 @@ class Teachers
      * @ORM\Column(type="string", length=255)
      */
     private $avatar;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Courses::class, mappedBy="teacher")
+     */
+    private $courses;
+
+    public function __construct()
+    {
+        $this->courses = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -86,6 +98,36 @@ class Teachers
     public function setAvatar(string $avatar): self
     {
         $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Courses[]
+     */
+    public function getCourses(): Collection
+    {
+        return $this->courses;
+    }
+
+    public function addCourse(Courses $course): self
+    {
+        if (!$this->courses->contains($course)) {
+            $this->courses[] = $course;
+            $course->setTeacher($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCourse(Courses $course): self
+    {
+        if ($this->courses->removeElement($course)) {
+            // set the owning side to null (unless already changed)
+            if ($course->getTeacher() === $this) {
+                $course->setTeacher(null);
+            }
+        }
 
         return $this;
     }
