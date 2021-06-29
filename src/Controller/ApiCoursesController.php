@@ -23,7 +23,6 @@ class ApiCoursesController extends AbstractController
      */
     public function index(Request $request, CoursesRepository $coursesRepository, CourseNormalize $courseNormalize): Response
     {
-
         $result = $coursesRepository->findAll();
 
         $data = [];
@@ -32,7 +31,30 @@ class ApiCoursesController extends AbstractController
             $data[] = $courseNormalize->courseNormalize($courses);
 
         }
-        return $this->json($data);
-      
+        return $this->json($data);      
+    }
+
+     /**
+     * @Route(
+     *      "/{id}",
+     *      name="get",
+     *      methods={"GET"},
+     *      requirements={
+     *          "id": "\d+"
+     *      }
+     * )
+     */
+    public function show(
+        int $id, 
+        CoursesRepository $coursesRepository,
+        CourseNormalize $courseNormalize
+        ): Response
+    {
+        $data = $coursesRepository->find($id);
+
+        dump($id);
+        dump($data);
+
+        return $this->json($courseNormalize->courseNormalize($data));
     }
 }

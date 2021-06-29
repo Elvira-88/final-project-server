@@ -23,12 +23,14 @@ class CourseNormalize {
     public function courseNormalize (Courses $courses): ?array {
       
         return [
-            'avatar' => $this->urlHelper->getAbsoluteUrl('/teacher/avatar/'.$courses->getTeacher()->getAvatar()),
+            'id' => $courses->getId(),            
             'name' => $courses->getName(),
             'description' => $courses->getDescription(),
             'teacher' => [
                 'id' => $courses->getTeacher()->getId(),
+                'avatar' => $this->urlHelper->getAbsoluteUrl('/teacher/avatar/'.$courses->getTeacher()->getAvatar()),
                 'name' => $courses->getTeacher()->getName(),
+                'lastName' => $courses->getTeacher()->getLastName(),
             ],
             'duration' => $courses->getDuration(),
             'price' => $courses->getPrice(),            
