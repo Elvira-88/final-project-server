@@ -20,9 +20,8 @@ class CourseNormalize {
      * 
      * @return array|null
      */
-    public function courseNormalize (Courses $courses): ?array {
-      
-        return [
+    public function courseNormalize (Courses $courses, $target = 'course'): ?array {
+        $data = [
             'id' => $courses->getId(),            
             'name' => $courses->getName(),
             'description' => $courses->getDescription(),
@@ -32,8 +31,13 @@ class CourseNormalize {
                 'name' => $courses->getTeacher()->getName(),
                 'lastName' => $courses->getTeacher()->getLastName(),
             ],
-            'duration' => $courses->getDuration(),
-            'price' => $courses->getPrice(),            
+            'duration' => $courses->getDuration()           
         ];
+
+        if ($target === 'course') {
+            $data['price'] = $courses->getPrice();
+        }
+      
+        return $data;
     }
 }
