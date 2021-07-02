@@ -66,15 +66,14 @@ class ApiUsersController extends AbstractController
         $user = new User();
 
         $user->setName($data->name);
-        $user->setLastName($data->get('lastname'));
-        $user->setDni($data->get('dni'));
-        $user->setPhone($data->get('phone'));
-        $user->setAddress($data->get('adress'));
-        $user->setEmail($data->get('email'));
+        $user->setLastName($data->lastname);
+        $user->setDni($data->dni);
+        $user->setPhone($data->phone);
+        $user->setAddress($data->adress);
+        $user->setEmail($data->email);
 
         $hash = $hasher->hashPassword($user, $data->password);
-        $user->setPassword($hash);
-        //password?                   
+        $user->setPassword($hash);                        
 
         $errors = $validator->validate($user);
 
@@ -100,7 +99,7 @@ class ApiUsersController extends AbstractController
         $entityManager->flush();
 
        
-        return  $this->json(
+        return $this->json(
            
             Response::HTTP_CREATED,        
 
