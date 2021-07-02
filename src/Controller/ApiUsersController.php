@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use App\Service\CourseNormalize;
 use App\Service\EnrollmentNormalize;
 use App\Service\TeacherNormalize;
+use App\Service\UserNormalize;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,15 +54,13 @@ class ApiUsersController extends AbstractController
      * )
      */
     public function add(
+        UserNormalize $userNormalize,
         Request $request,
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,     
         UserPasswordHasherInterface $hasher
         ): Response {
         $data = json_decode($request->getContent());
-        $data->name;
-        dump($data);
-        die();
                  
         $user = new User();
 
@@ -69,7 +68,7 @@ class ApiUsersController extends AbstractController
         $user->setLastName($data->lastname);
         $user->setDni($data->dni);
         $user->setPhone($data->phone);
-        $user->setAddress($data->adress);
+        $user->setAddress($data->address);
         $user->setEmail($data->email);
 
         $hash = $hasher->hashPassword($user, $data->password);
@@ -100,7 +99,7 @@ class ApiUsersController extends AbstractController
 
        
         return $this->json(
-           
+            $userNormalize->UserNormalize($user),
             Response::HTTP_CREATED,        
 
         );
