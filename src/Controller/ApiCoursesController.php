@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Courses;
 use App\Repository\CoursesRepository;
+use App\Repository\TeachersRepository;
 use App\Service\CourseNormalize;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,6 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api/courses", name="api_courses_")
@@ -108,6 +111,9 @@ class ApiCoursesController extends AbstractController
 
         $course->setName($data->name);
         $course->setDescription($data->description);
+
+   
+
         $course->setTeacher($data->teacher);
         $course->setDuration($data->duration);
         $course->setPrice($data->price);
@@ -118,4 +124,73 @@ class ApiCoursesController extends AbstractController
            
         );
     }
+
+     /**
+     * @Route(
+     *      "",
+     *      name="post",
+     *      methods={"POST"}
+     * )
+     *  @IsGranted("ROLE_ADMIN")
+     */
+    public function add(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        TeachersRepository $teachersRepository,
+        CourseNormalize $courseNormalize,       
+        SluggerInterface $slug 
+        ): Response {
+        $data = json_decode($request->getContent());
+                        
+        $teacher = $teachersRepository->find($data->get('teacher_id'));
+
+        $course = new Courses();
+
+        $course->setName($data->name);
+        $course->setDescription($data->description);
+        $course->setTeacher($teacher);
+        $course->setDuration($data->duration);
+        $course->setPrice($data->price);
+
+        $errors = $validator->validate($course);
+
+        if(count($errors) > 0) {
+            $dataErrors = [];
+
+            /** @var \Symfony\Component\Validator\ConstraintViolation $error */
+            foreach($errors as $error) {
+                $dataErrors[] = $error->getMessage();
+            }
+
+            return $this->json([
+                'status' => 'error',
+                'data' => [
+                    'errors' => $dataErrors
+                ],
+            ],
+            Response::HTTP_BAD_REQUEST);
+        }
+
+        $entityManager->persist($course);       
+
+        $entityManager->flush();
+
+        dump($course);
+
+        return  $this->json(
+            $courseNormalize->courseNormalize($course),
+            Response::HTTP_CREATED,
+            [
+                'Location' => $this->generateUrl(
+                'api_courses_get',
+                [
+                    'id' => $course->getId()
+                ]
+                )
+            ]
+
+        );
+    }
+
 }
