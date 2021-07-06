@@ -48,7 +48,7 @@ class ApiUsersController extends AbstractController
 
     /**
      * @Route(
-     *      "",
+     *      "/register",
      *      name="post",
      *      methods={"POST"}
      * )
@@ -65,7 +65,7 @@ class ApiUsersController extends AbstractController
         $user = new User();
 
         $user->setName($data->name);
-        $user->setLastName($data->lastname);
+        $user->setLastName($data->lastName);
         $user->setDni($data->dni);
         $user->setPhone($data->phone);
         $user->setAddress($data->address);

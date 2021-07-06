@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\TeachersRepository;
+use App\Repository\CoursesRepository;
 use App\Service\TeacherNormalize;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,6 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use App\Entity\Teachers;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
  * @Route("/api/teachers", name="api_teachers_")
@@ -80,21 +83,93 @@ class ApiTeachersController extends AbstractController
     public function update(
         Teachers $teacher,
         EntityManagerInterface $entityManager,
+        CoursesRepository $courseRepository,
         Request $request
         ): Response
     {
-        $data = json_decode($request->getContent());     
+        $data = json_decode($request->getContent());  
+        
+        $course = $courseRepository->find($data->course_id);
 
         $teacher->setAvatar($data->avatar);
         $teacher->setName($data->name);
         $teacher->setLastName($data->lastName);
         $teacher->setDescription($data->description);
-        // $teacher->setCourse($data->course);
+        $teacher->addCourse($data->course);
         
         $entityManager->flush();
 
         return $this->json(null, Response::HTTP_NO_CONTENT
            
+        );
+    }
+
+     /**
+     * @Route(
+     *      "",
+     *      name="post",
+     *      methods={"POST"}
+     * )
+     *  @IsGranted("ROLE_ADMIN")
+     */
+    public function add(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,        
+        TeachersRepository $teachersRepository,
+        CoursesRepository $courseRepository,
+        TeacherNormalize $teacherNormalize,       
+        SluggerInterface $slug 
+        ): Response {
+        $data = json_decode($request->getContent());
+            
+        $course = $courseRepository->find($data->course_id);   
+
+        $teacher = new Teachers();
+
+        $teacher->setAvatar($data->avatar);
+        $teacher->setName($data->name);
+        $teacher->setLastName($data->lastName);
+        $teacher->setDescription($data->description);
+        $teacher->addCourse($data->course);     
+
+        $errors = $validator->validate($course);
+
+        if(count($errors) > 0) {
+            $dataErrors = [];
+
+            /** @var \Symfony\Component\Validator\ConstraintViolation $error */
+            foreach($errors as $error) {
+                $dataErrors[] = $error->getMessage();
+            }
+
+            return $this->json([
+                'status' => 'error',
+                'data' => [
+                    'errors' => $dataErrors
+                ],
+            ],
+            Response::HTTP_BAD_REQUEST);
+        }
+
+        $entityManager->persist($course);       
+
+        $entityManager->flush();
+
+        dump($course);
+
+        return  $this->json(
+            $teacherNormalize->teacherNormalize($teacher),
+            Response::HTTP_CREATED,
+            [
+                'Location' => $this->generateUrl(
+                'api_teachers_get',
+                [
+                    'id' => $teacher->getId()
+                ]
+                )
+            ]
+
         );
     }
 
