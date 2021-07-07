@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use App\Entity\Teachers;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -127,7 +128,7 @@ class ApiTeachersController extends AbstractController
 
         $teacher = new Teachers();
 
-        $teacher->setAvatar($data->avatar);
+        // $teacher->setAvatar($data->avatar);
         $teacher->setName($data->name);
         $teacher->setLastName($data->lastName);
         $teacher->setDescription($data->description);
@@ -170,6 +171,46 @@ class ApiTeachersController extends AbstractController
                 )
             ]
 
+        );
+    }
+
+    /**
+    * @Route(
+    *      "/updateimg/{id}",
+    *      name="updateImg",
+    *      methods={"POST"},
+    *      requirements={
+    *          "id": "\d+"
+    *      }
+    * )
+    */
+    public function updateImg(
+        Teachers $teacher, 
+        Request $request, 
+        EntityManagerInterface $entityManager):Response {
+     
+        if($request->files->has('avatar')) {
+            $avatarFile = $request->files->get('avatar');
+
+            $newFilename = uniqid().'.'.$avatarFile->guessExtension();
+
+            try {
+                $avatarFile->move(
+                    $request->server->get('DOCUMENT_ROOT') . DIRECTORY_SEPARATOR . 'teachers/avatar', 
+                    $newFilename 
+                );
+            } catch (FileException $error) {
+                throw new \Exception($error->getMessage());
+            }
+
+            $teacher->setAvatar($newFilename);
+        }
+
+        $entityManager->flush();
+
+        return $this->json(
+            null,
+            Response::HTTP_NO_CONTENT
         );
     }
 
