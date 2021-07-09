@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Courses;
+use App\Entity\User;
 use Symfony\Component\HttpFoundation\UrlHelper;
 
 class CourseNormalize {
@@ -20,7 +21,7 @@ class CourseNormalize {
      * 
      * @return array|null
      */
-    public function courseNormalize (Courses $courses, $target = 'course'): ?array {
+    public function courseNormalize (Courses $courses, $target = 'course', User $user = null): ?array {
         $data = [
             'id' => $courses->getId(),            
             'name' => $courses->getName(),
@@ -38,6 +39,19 @@ class CourseNormalize {
             $data['price'] = $courses->getPrice();
         }
       
+        dump($user);
+        if ($user) {
+            foreach($user->getEnrollments() as $enrollment){
+                dump($enrollment);
+                dump($courses);
+                if($enrollment->getCourse()->getId() === $courses->getId()) {
+                    $data['coursed'] = true;
+                    dump($data);
+                    break;
+                }
+            }
+        }
+
         return $data;
     }
 }

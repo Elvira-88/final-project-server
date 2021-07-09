@@ -34,7 +34,10 @@ class ApiCoursesController extends AbstractController
         $data = [];
 
         foreach($result as $courses) {
-            $data[] = $courseNormalize->courseNormalize($courses);
+            
+            $user = !$this->isGranted('ROLE_ADMIN') ? $this->getUser() : null;
+            $data[] = $courseNormalize->courseNormalize($courses, 'course', $user);
+            // $data[] = $courseNormalize->courseNormalize($courses);
 
         }
         return $this->json($data);      

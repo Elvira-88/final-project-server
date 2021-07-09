@@ -34,7 +34,7 @@ class ApiUsersController extends AbstractController
 
     public function courses(EnrollmentNormalize $enrollmentNormalize, UserRepository $userRepository): Response
     {
-        $user = $userRepository->find(1); //$this->getUser();
+        $user = $this->getUser();
 
         $data = [];
 
