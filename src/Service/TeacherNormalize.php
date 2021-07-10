@@ -36,6 +36,7 @@ class TeacherNormalize {
         // }
 
         return [
+            'id' => $teachers->getId(),
             'avatar' => $this->urlHelper->getAbsoluteUrl('/teacher/avatar/'.$teachers->getAvatar()),
             'name' => $teachers->getName(),
             'lastName' => $teachers->getLastName(),

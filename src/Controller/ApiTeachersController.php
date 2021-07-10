@@ -44,6 +44,30 @@ class ApiTeachersController extends AbstractController
         return $this->json($data);     
 
     }   
+
+    /**
+     * @Route(
+     *      "/{id}",
+     *      name="get",
+     *      methods={"GET"},
+     *      requirements={
+     *          "id": "\d+"
+     *      }
+     * )
+     */
+    public function show(
+        int $id,
+        TeachersRepository $teachersRepository,
+        TeacherNormalize $teacherNormalize        
+        ): Response
+    {
+        $data = $teachersRepository->find($id);
+
+        dump($id);
+        dump($data);
+
+        return $this->json($teacherNormalize->teacherNormalize($data));
+    }
     
       /**
      * @Route(
@@ -96,7 +120,7 @@ class ApiTeachersController extends AbstractController
         $teacher->setName($data->name);
         $teacher->setLastName($data->lastName);
         $teacher->setDescription($data->description);
-        $teacher->addCourse($data->course);
+        $teacher->setCourses($data->course);
         
         $entityManager->flush();
 
@@ -124,7 +148,8 @@ class ApiTeachersController extends AbstractController
         ): Response {
         $data = json_decode($request->getContent());
             
-        $course = $courseRepository->find($data->course_id);   
+        $course = $courseRepository->find($data->course_id); 
+        dump($course);  
 
         $teacher = new Teachers();
 
@@ -132,7 +157,7 @@ class ApiTeachersController extends AbstractController
         $teacher->setName($data->name);
         $teacher->setLastName($data->lastName);
         $teacher->setDescription($data->description);
-        $teacher->addCourse($data->course);     
+        $teacher->setCourses($course);     
 
         $errors = $validator->validate($course);
 

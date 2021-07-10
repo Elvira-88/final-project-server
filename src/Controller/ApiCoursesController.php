@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Courses;
+use App\Entity\Teachers;
 use App\Repository\CoursesRepository;
 use App\Repository\TeachersRepository;
 use App\Service\CourseNormalize;
@@ -105,16 +106,19 @@ class ApiCoursesController extends AbstractController
      *  @IsGranted("ROLE_ADMIN")
      */
     public function update(
-        Courses $course,
+        Courses $course,        
         EntityManagerInterface $entityManager,
+        TeachersRepository $teachersRepository,
         Request $request
         ): Response
     {
         $data = json_decode($request->getContent());
 
+        $teacher = $teachersRepository->find($data->teacher_id);  
+
         $course->setName($data->name);
         $course->setDescription($data->description);
-        $course->setTeacher($data->teacher);
+        $course->setTeacher($teacher); 
         $course->setDuration($data->duration);
         $course->setPrice($data->price);
 
@@ -143,13 +147,13 @@ class ApiCoursesController extends AbstractController
         ): Response {
         $data = json_decode($request->getContent());
                         
-        $teacher = $teachersRepository->find($data->teacher_id);
+        $teacher = $teachersRepository->find($data->teacher_id);        
 
         $course = new Courses();
 
         $course->setName($data->name);
         $course->setDescription($data->description);
-        $course->setTeacher($teacher);
+        $course->setTeacher($teacher);       
         $course->setDuration($data->duration);
         $course->setPrice($data->price);
 

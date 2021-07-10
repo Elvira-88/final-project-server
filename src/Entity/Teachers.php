@@ -110,15 +110,22 @@ class Teachers
         return $this->courses;
     }
 
-    public function addCourse(Courses $course): self
+    public function setCourses(?courses $course): self
     {
-        if (!$this->courses->contains($course)) {
-            $this->courses[] = $course;
-            $course->setTeacher($this);
-        }
+        $this->course = $course;
 
         return $this;
     }
+
+    // public function addCourse(Courses $course): self
+    // {
+    //     if (!$this->courses->contains($course)) {
+    //         $this->courses[] = $course;
+    //         $course->setTeacher($this);
+    //     }
+
+    //     return $this;
+    // }
 
     public function removeCourse(Courses $course): self
     {
