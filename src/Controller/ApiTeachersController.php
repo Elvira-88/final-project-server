@@ -116,11 +116,11 @@ class ApiTeachersController extends AbstractController
         
         $course = $courseRepository->find($data->course_id);
 
-        $teacher->setAvatar($data->avatar);
+        // $teacher->setAvatar($data->avatar);
         $teacher->setName($data->name);
         $teacher->setLastName($data->lastName);
         $teacher->setDescription($data->description);
-        $teacher->setCourses($data->course);
+        $teacher->setCourses($course);
         
         $entityManager->flush();
 
@@ -153,7 +153,6 @@ class ApiTeachersController extends AbstractController
 
         $teacher = new Teachers();
 
-        // $teacher->setAvatar($data->avatar);
         $teacher->setName($data->name);
         $teacher->setLastName($data->lastName);
         $teacher->setDescription($data->description);
