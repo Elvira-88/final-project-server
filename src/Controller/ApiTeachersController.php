@@ -177,11 +177,11 @@ class ApiTeachersController extends AbstractController
             Response::HTTP_BAD_REQUEST);
         }
 
-        $entityManager->persist($course);       
+        $entityManager->persist($teacher);       
 
         $entityManager->flush();
 
-        dump($course);
+        dump($teacher);
 
         return  $this->json(
             $teacherNormalize->teacherNormalize($teacher),
