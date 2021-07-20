@@ -81,12 +81,20 @@ class ApiTeachersController extends AbstractController
      *  @IsGranted("ROLE_ADMIN")
      */    
     public function remove(
-        Teachers $teacher,
+        int $id,
+        TeachersRepository $teachersRepository,
+        CoursesRepository $courseRepository,
         EntityManagerInterface $entityManager        
         ): Response
     {
-        dump($teacher);
-       
+        $teacher = $teachersRepository->find($id);
+        $coursesOfTeacher = $courseRepository->findCoursessByTeacher($id);
+
+        foreach($coursesOfTeacher as $course) {
+            $entityManager->remove($course);
+            $entityManager->flush();
+        }
+
         $entityManager->remove($teacher);
         $entityManager->flush();
 
@@ -220,7 +228,7 @@ class ApiTeachersController extends AbstractController
 
             try {
                 $avatarFile->move(
-                    $request->server->get('DOCUMENT_ROOT') . DIRECTORY_SEPARATOR . 'teachers/avatar', 
+                    $request->server->get('DOCUMENT_ROOT') . DIRECTORY_SEPARATOR . 'teacher/avatar', 
                     $newFilename 
                 );
             } catch (FileException $error) {

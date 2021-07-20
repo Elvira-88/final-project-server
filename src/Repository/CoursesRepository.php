@@ -19,6 +19,19 @@ class CoursesRepository extends ServiceEntityRepository
         parent::__construct($registry, Courses::class);
     }
 
+    /**
+    * @return Courses[]|null Returns an array of Course objects
+    */
+    public function findCoursessByTeacher($id)
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.teacher = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     // /**
     //  * @return Courses[] Returns an array of Courses objects
     //  */
